@@ -1,0 +1,20 @@
+from sqlmodel import Session, select
+from app.models.models import Product, ProductCreate
+
+def create_product(session: Session, product_data: ProductCreate) -> Product:
+    db_product = Product.model_validate(product_data)
+    session.add(db_product)
+    session.commit()
+    session.refresh(db_product)
+    return db_product
+
+def get_products(session: Session):
+    return session.exec(select(Product)).all()
+
+
+    from app.crud import product as crud_product
+
+@router.post("/", response_model=ProductRead)
+def create_product(product: ProductCreate, session: Session = Depends(get_session)):
+    # El router solo recibe la orden y la delega
+    return crud_product.create_product(session, product)
