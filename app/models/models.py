@@ -1,5 +1,7 @@
 from typing import Optional
-from sqlmodel import SQLModel, Field
+
+from sqlmodel import Relationship, SQLModel, Field
+
 from .audit import AuditMixin
 
 
@@ -16,6 +18,8 @@ class ProductCreate(ProductBase):
 
 class Product(ProductBase, AuditMixin, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
+    category: "Category" = Relationship(back_populates="products")
+    inventory_movement: list["InventoryMovement"] = Relationship(back_populates="product")
 
 class ProductRead(ProductBase):
     id: int
@@ -29,8 +33,12 @@ class CategoryBase(SQLModel):
 class CategoryCreate(CategoryBase):
     pass
 
+class CategoryUpdate(CategoryBase):
+    pass
+
 class Category(CategoryBase, AuditMixin, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
+    products: list["Product"] = Relationship(back_populates="category")
 
 class CategoryRead(CategoryBase):
     id: int
@@ -47,6 +55,7 @@ class InventoryMovementCreate(InventoryMovementBase):
 
 class InventoryMovement(InventoryMovementBase, AuditMixin, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
+    product: "Product" =Relationship(back_populates="inventory_movement")
 
 class InventoryMovementRead(InventoryMovementBase):
     id: int
