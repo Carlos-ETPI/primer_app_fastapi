@@ -21,7 +21,7 @@ from app.models.rol_permission import RolPermission
 # access to the values within the .ini file in use.
 config = context.config
 
-postgres_url = f"postgresql://{env('DB_USER')}:{env('DB_PASSWORD')}@{env('DB_HOST')}:{env('DB_PORT')}/{env('DB_NAME')}"
+postgres_url = env("DATABASE_URL")
 config.set_main_option("sqlalchemy.url", postgres_url)
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

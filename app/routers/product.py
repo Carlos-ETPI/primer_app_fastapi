@@ -2,13 +2,14 @@ from fastapi import APIRouter, HTTPException,status
 from sqlmodel import select
 
 from app.database import SessionDep
+from app.dependencies import CurrentUser
 from app.models.models import Product, ProductCreate, ProductRead
 
 router = APIRouter(tags=["Products"])
 
 
 @router.post("/products",response_model=ProductRead)
-async def create_product(product_data : ProductCreate, session : SessionDep):
+async def create_product(product_data : ProductCreate, session : SessionDep, current_user: CurrentUser):
     product_db = Product.model_validate(product_data.model_dump())
     session.add(product_db)
     session.commit()
@@ -17,12 +18,12 @@ async def create_product(product_data : ProductCreate, session : SessionDep):
 
 
 @router.get("/products",response_model=list[ProductRead])
-async def get_products(session : SessionDep):
+async def get_products(session : SessionDep, current_user: CurrentUser):
     return session.exec(select(Product)).all()
 
 
 @router.delete("/products/{product_id}")
-async def delete_product(product_id : int, session :SessionDep):
+async def delete_product(product_id : int, session :SessionDep, current_user: CurrentUser):
     product_db = session.get(Product, product_id)
     if not product_db:
         raise HTTPException(
@@ -35,7 +36,7 @@ async def delete_product(product_id : int, session :SessionDep):
 
 
 @router.post("/products/{product_id}", response_model=ProductRead)
-async def search_product(product_id : int, session : SessionDep):
+async def search_product(product_id : int, session : SessionDep, current_user: CurrentUser):
     product_db = session.get(Product,product_id)
     if not product_db:
         raise HTTPException(

@@ -2,6 +2,7 @@ from typing import List
 from fastapi import APIRouter, HTTPException,status
 from sqlmodel import select
 
+from app.dependencies import CurrentUser
 from app.models.models import InventoryMovement, InventoryMovementCreate, InventoryMovementRead, Product, TransactionType
 from app.database import SessionDep
 
@@ -9,7 +10,7 @@ router = APIRouter(tags=["Movements"])
 
 
 @router.post("/movements", response_model=InventoryMovementRead)
-async def create_movement(movement_data : InventoryMovementCreate, session : SessionDep):
+async def create_movement(movement_data : InventoryMovementCreate, session : SessionDep, current_user: CurrentUser):
     movement_db = InventoryMovement.model_validate(movement_data.model_dump())
     product = session.get(Product, movement_data.product_id)
     if not product:
@@ -46,12 +47,12 @@ async def create_movement(movement_data : InventoryMovementCreate, session : Ses
 
 
 @router.get("/movements", response_model=list[InventoryMovementRead])
-async def get_movements(session : SessionDep):
+async def get_movements(session : SessionDep, current_user: CurrentUser):
     statement = select(InventoryMovement)
     resultados = session.exec(statement).all()
     return resultados
 
 
 @router.get("/movements/types", response_model=List[str])
-def get_transaction_types():
+def get_transaction_types(session: SessionDep, current_user: CurrentUser):
     return [t.value for t in TransactionType]

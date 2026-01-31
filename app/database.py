@@ -3,6 +3,8 @@ from fastapi import Depends
 from sqlmodel import Session, create_engine
 from environs import Env
 
+from app.core.config import settings
+
 env = Env()
 env.read_env()
 
@@ -10,7 +12,7 @@ env.read_env()
     from urllib.parse import quote_plus
     password_segura = quote_plus(env('DB_PASSWORD'))"""
 
-postgres_url = f"postgresql://{env('DB_USER')}:{env('DB_PASSWORD')}@{env('DB_HOST')}:{env('DB_PORT')}/{env('DB_NAME')}"
+postgres_url = settings.DATABASE_URL
 
 """echo solo debe usarse en desarrollo para ver las consultas SQL 
 generadas como debug"""
