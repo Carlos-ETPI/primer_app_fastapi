@@ -10,6 +10,12 @@ from sqlmodel import SQLModel
 from app.database import engine
 from app.models import models  
 from app.models import audit
+from app.models.users import User
+from app.models.rol import Rol
+from app.models.permission import Permission
+from app.models.user_rol import UserRol
+from app.models.rol_permission import RolPermission
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

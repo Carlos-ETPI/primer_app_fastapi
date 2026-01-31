@@ -1,4 +1,5 @@
 from typing import Optional
+from enum import Enum
 
 from sqlmodel import Relationship, SQLModel, Field
 
@@ -10,7 +11,6 @@ class ProductBase(SQLModel):
     name: str = Field(index=True)
     sku: str = Field(unique=True, index=True)
     price: float = Field(gt=0)
-    stock: int = Field(default=0, ge=0)
     category_id: int = Field(foreign_key="category.id")
 
 class ProductCreate(ProductBase):
@@ -19,10 +19,12 @@ class ProductCreate(ProductBase):
 class Product(ProductBase, AuditMixin, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     category: "Category" = Relationship(back_populates="products")
+    stock: int = Field(default=0, ge=0)
     inventory_movement: list["InventoryMovement"] = Relationship(back_populates="product")
 
 class ProductRead(ProductBase):
     id: int
+    stock: int = Field(default=0, ge=0)
 
 
 """Modelos de Categoría de Producto"""
@@ -45,17 +47,27 @@ class CategoryRead(CategoryBase):
 
 
 """Modelos de Movimiento de Inventario"""
+class TransactionType(str, Enum):
+    ENTRADA = "ENTRADA"
+    SALIDA = "SALIDA"
+    AJUSTE = "AJUSTE"
+
+
 class InventoryMovementBase(SQLModel):
     product_id: int = Field(foreign_key="product.id")
     quantity: int
     reason: str = Field(min_length=3)
+    transaction : TransactionType = Field(index=True)
+
 
 class InventoryMovementCreate(InventoryMovementBase):
     pass
 
+
 class InventoryMovement(InventoryMovementBase, AuditMixin, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     product: "Product" =Relationship(back_populates="inventory_movement")
+
 
 class InventoryMovementRead(InventoryMovementBase):
     id: int
