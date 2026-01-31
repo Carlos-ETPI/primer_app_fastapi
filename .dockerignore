@@ -1,0 +1,21 @@
+# Ignorar el entorno virtual local (CRÍTICO)
+venv/
+.env
+.venv/
+env/
+
+# Ignorar datos de Git
+.git
+.gitignore
+
+# Ignorar archivos temporales de Python
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+.pytest_cache
+.volumes
+
+# Archivos de base de datos local si los tienes
+*.db
+*.sqlite3
