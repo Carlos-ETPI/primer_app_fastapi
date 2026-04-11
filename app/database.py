@@ -5,8 +5,6 @@ from environs import Env
 
 from app.core.config import settings
 
-env = Env()
-env.read_env()
 
 """cuidado com los caracteres especiales en las contraseñas debe usar   
     from urllib.parse import quote_plus
@@ -16,7 +14,12 @@ postgres_url = settings.DATABASE_URL
 
 """echo solo debe usarse en desarrollo para ver las consultas SQL 
 generadas como debug"""
-engine = create_engine(postgres_url,echo=True)
+#engine = create_engine(postgres_url,echo=True)
+engine = create_engine(
+    postgres_url,
+    pool_pre_ping=True,
+    pool_size=10, 
+    max_overflow=20)
 
 def get_session():
     with Session(engine) as session:

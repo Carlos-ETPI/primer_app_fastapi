@@ -10,11 +10,15 @@ router = APIRouter(tags=["Users"])
 @router.post("/users",response_model=UserRead)
 async def create_user(user_data : UserCreate, session : SessionDep):
     user_dict = user_data.model_dump()
+    """se usa pop para obtener la contraseña en texto plano y eliminarla del diccionario, ya que no se debe almacenar la contraseña en texto plano en la base de datos"""
     plain_password = user_dict.pop("password")
     hashed_password = get_password_hash(plain_password)
     
     # 3. Creamos el objeto User manualmente con la contraseña encriptada
-    user_db = User(**user_dict, password=hashed_password)
+    user_db = User(
+        **user_dict, 
+        password=hashed_password
+        )
     session.add(user_db)
     session.commit()
     session.refresh(user_db)
@@ -26,3 +30,4 @@ async def get_users(session : SessionDep, current_user: CurrentUser):
     statement = select(User)
     resultados = session.exec(statement).all()
     return resultados
+

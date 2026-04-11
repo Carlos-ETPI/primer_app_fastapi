@@ -16,19 +16,24 @@ password_hash = PasswordHash(
     )
 )
 
-def create_access_token(subject: str | Any, expires_delta: timedelta) -> str:
+def create_access_token(
+        subject: str | Any,
+        expires_delta: timedelta) -> str:
     expire = datetime.now(timezone.utc) + expires_delta
     to_encode = {"exp": expire, "sub": str(subject)}
     encoded_jwt = jwt.encode(
         to_encode, 
         settings.SECRET_KEY, 
         algorithm=ALGORITHM)
+    print(encoded_jwt,subject)
     return encoded_jwt
 
 def verify_password(
     plain_password: str, hashed_password: str
 ) -> tuple[bool, str | None]:
-    return password_hash.verify_and_update(plain_password, hashed_password)
+    return password_hash.verify_and_update(
+        plain_password,
+        hashed_password)
 
 
 def get_password_hash(password: str) -> str:

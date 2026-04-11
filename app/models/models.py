@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Optional
 from enum import Enum
 
@@ -45,7 +46,10 @@ class Category(CategoryBase, AuditMixin, table=True):
 class CategoryRead(CategoryBase):
     id: int
 
-
+class CategoryReportRead(SQLModel):
+    fecha_inicio : Optional[date] = Field(default=None)
+    fecha_fin : Optional[date] = Field(default=None)
+    
 """Modelos de Movimiento de Inventario"""
 class TransactionType(str, Enum):
     ENTRADA = "ENTRADA"

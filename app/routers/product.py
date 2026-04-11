@@ -1,16 +1,21 @@
-from fastapi import APIRouter, HTTPException,status
+from fastapi import APIRouter, Depends, HTTPException,status
 from sqlmodel import select
 
 from app.database import SessionDep
-from app.dependencies import CurrentUser
+from app.dependencies import ApiKey, CurrentUser, get_api_key
 from app.models.models import Product, ProductCreate, ProductRead
-
+from app.core.security import password_hash
 router = APIRouter(tags=["Products"])
 
 
 @router.post("/products",response_model=ProductRead)
-async def create_product(product_data : ProductCreate, session : SessionDep, current_user: CurrentUser):
-    product_db = Product.model_validate(product_data.model_dump())
+async def create_product(
+    product_data : ProductCreate,
+    session : SessionDep, 
+    current_user: CurrentUser):
+    product_dict = product_data.model_dump(exclude_unset=True)
+    product_dict["created_by"] = current_user.username
+    product_db = Product.model_validate(product_dict)
     session.add(product_db)
     session.commit()
     session.refresh(product_db)
@@ -19,6 +24,7 @@ async def create_product(product_data : ProductCreate, session : SessionDep, cur
 
 @router.get("/products",response_model=list[ProductRead])
 async def get_products(session : SessionDep, current_user: CurrentUser):
+    print(password_hash.hash("password123"))
     return session.exec(select(Product)).all()
 
 
@@ -36,7 +42,10 @@ async def delete_product(product_id : int, session :SessionDep, current_user: Cu
 
 
 @router.post("/products/{product_id}", response_model=ProductRead)
-async def search_product(product_id : int, session : SessionDep, current_user: CurrentUser):
+async def search_product(
+    product_id : int, 
+    session : SessionDep, 
+    key : ApiKey):
     product_db = session.get(Product,product_id)
     if not product_db:
         raise HTTPException(
